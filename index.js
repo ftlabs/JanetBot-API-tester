@@ -7,10 +7,10 @@ const fs = require('fs');
 
 const selectedSubset = {
 	type: 'sample',
-	folders: ['00'],
-	quantity: 10,
-	from: 10,
-	sampleOrder: 'consecutive'
+	folders: ['00', '01', '02'],
+	quantity: 2,
+	from: 0,
+	sampleOrder: 'random'
 } 
 
 let metadata;
@@ -112,7 +112,8 @@ function saveResults(data) {
 
 	const toSave = {
 		subset: selectedSubset,
-		results: data
+		results: data,
+		stats: getStats(data)
 	};
 
 	fs.writeFile(path.resolve(path.join(__dirname + `/results/${fileName}.json`)), JSON.stringify(toSave, null, '\t'), 'utf8', err => {
@@ -124,21 +125,48 @@ function saveResults(data) {
 	});
 }
 
+function getStats(data) {
+	let matchCount = 0;
+	let wrongCount = 0;
+	let noFaceCount = 0;
+	let apiErrorCount = 0;
+
+	for(let i = 0; i < data.length; ++i) {
+		switch(data[i].conclusion.code) {
+			case 0:
+				++matchCount;
+			break;
+			case 1:
+				++wrongCount;
+			break;
+			case 2:
+				++noFaceCount;
+			break;
+
+			case 3:
+			default:
+				++apiErrorCount;
+		}
+	}
+
+	return {totalSample: data.length, successRate: `${Math.round(100*matchCount/(data.length - apiErrorCount))}%`, matches: matchCount, wrong: wrongCount, noFace: noFaceCount, apiError: apiErrorCount };
+}
+
 async function checkClassification(data) {
 	if(data.apiResults !== undefined) {
 		const actual = data.apiResults.gender_counts;
 		const expected = data.expectedGender;
 
 		if(actual.female === 0 && actual.male === 0) {
-			return {type: 'ERROR', msg: 'No faces found'};
+			return {type: 'ERROR', code: 2, msg: 'No faces found'};
 		} else if(actual[expected] > 0) {
-			return {type: 'OK', msg: 'At least one matching result'};
+			return {type: 'OK', code: 0, msg: 'At least one matching result'};
 		}
 
-		return {type: 'ERROR', msg: 'Wrong classification'};
+		return {type: 'ERROR', code: 1, msg: 'Wrong classification'};
 	}
 
-	return {type: 'ERROR', msg: 'No API result'};
+	return {type: 'ERROR', code: 3, msg: 'No API result'};
 }
 
 async function formatMetaData(data) {
