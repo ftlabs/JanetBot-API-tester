@@ -7,9 +7,9 @@ const fs = require('fs');
 
 const selectedSubset = {
 	type: 'sample',
-	folders: ['00', '01'],
-	quantity: 5,
-	from: 0,
+	folders: ['00'],
+	quantity: 10,
+	from: 10,
 	sampleOrder: 'consecutive'
 } 
 
@@ -115,7 +115,7 @@ function saveResults(data) {
 		results: data
 	};
 
-	fs.writeFile(path.resolve(path.join(__dirname + `/results/${fileName}.json`)), JSON.stringify(toSave), 'utf8', err => {
+	fs.writeFile(path.resolve(path.join(__dirname + `/results/${fileName}.json`)), JSON.stringify(toSave, null, '\t'), 'utf8', err => {
 		if (err) {
 			console.log(data);
 			throw err;
