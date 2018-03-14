@@ -20,8 +20,11 @@ Note, the API url needs to be added as `JANETBOT_API` in the same file.
 
 In `index.js`, fill in `selectedSubset` with desired parameters (see below).
 
-Save, and run `npm start`. This will send the selected images to be analysed and save the results as a json file in `results`. 
+Save, and run `npm start` and visit `localhost:2018/test`. This will send the selected images to be analysed and save the results as a json file in `results`. 
 A console output will show the file name.
+
+## Visual results
+To view the results, visit `localhost:2018` and upload the newly generated json file. It will pull up images and overlay bounding boxes.
 
 ### selectedSubsetParams
 - **type**: can be `'sample'` (will pick some images from the folders) or `'folders'` (will analyse entire folders)

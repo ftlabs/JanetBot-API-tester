@@ -7,8 +7,8 @@ const fs = require('fs');
 
 const selectedSubset = {
 	type: 'sample',
-	folders: ['00', '01', '02'],
-	quantity: 2,
+	folders: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09'],
+	quantity: 10,
 	from: 0,
 	sampleOrder: 'random'
 } 
@@ -16,21 +16,30 @@ const selectedSubset = {
 let metadata;
 
 app.use(express.static(path.resolve(__dirname + "/data")));
+app.use(express.static(path.resolve(__dirname + "/client")));
 
 const localURL = process.env.LOCAL_URL;
 
+app.get('/', (req,res) => {
+	res.send(200);
+});
+
+app.get('/test', (req, res) => {
+	fs.readFile(path.resolve(path.join(__dirname + "/data/data.json")), 'utf8', (err, data) => {
+		if(err) {
+			console.log('ERROR opening metadata', err);
+			return;
+		}
+
+		metadata = JSON.parse(data).sort(sortByPath);
+		analyseDataSet(getSubset(selectedSubset));
+	});
+
+	res.send('Analysis is running');
+})
+
 app.listen(process.env.PORT || 2018);
 
-fs.readFile(path.resolve(path.join(__dirname + "/data/data.json")), 'utf8', (err, data) => {
-	if(err) {
-		console.log('ERROR opening metadata', err);
-		return;
-	}
-
-	metadata = JSON.parse(data).sort(sortByPath);
-
-	analyseDataSet(getSubset(selectedSubset));
-});
 
 function getSubset(args) {
 	const dataset = [];
