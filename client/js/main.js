@@ -154,13 +154,23 @@ function getImage(imgData, canvas) {
 
 function drawSquares(faces, context, xShrunkBy=1.0, yShrunkBy=1.0) {
 	for(var i = 0; i < faces.length; ++i) {
-		var pos = faces[i].coordinates;
-		context.strokeStyle = (faces[i].gender === "man")?"blue":"red";
+		let face = faces[i];
+		var pos = face.coordinates;
+		context.setLineDash([]);
+		context.strokeStyle = (face.gender === "man")?"blue":"red";
 		context.lineWidth = 2;
 		context.strokeRect(
 			pos.point[0]/xShrunkBy, pos.point[1]/yShrunkBy,
 			pos.width   /xShrunkBy, pos.height  /yShrunkBy
 		);
+		if (face.hasOwnProperty('offsets')) {
+			context.setLineDash([5]);
+			var pos = face.offsets.coordinates;
+			context.strokeRect(
+				pos.point[0]/xShrunkBy, pos.point[1]/yShrunkBy,
+				pos.width   /xShrunkBy, pos.height  /yShrunkBy
+			);
+		}
 	}
 }
 
