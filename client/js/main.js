@@ -26,7 +26,7 @@ function parseInput(e) {
 
 		let lines = classifierText.split(/\n/);
 
-		let mUrl = lines[0].match(/^(http:.*)/);
+		let mUrl = lines[0].match(/^(https?:.*)/);
 		if( mUrl ) {
 			classifierUrl = mUrl[1];
 			console.log(`DEBUG: parsing classifierUrl=${classifierUrl}`);
