@@ -26,6 +26,8 @@ A console output will show the file name.
 ## Visual results
 To view the results, visit `localhost:2018` and upload the newly generated json file. It will pull up images and overlay bounding boxes.
 
+To get the results from the homepage, you will need to add `AUTH_TOKEN`, `AUTH_USER`, and `JANETBOT_URL` to your environment variables. See the JanetBot project for more details.
+
 ### selectedSubsetParams
 - **type**: can be `'sample'` (will pick some images from the folders) or `'folders'` (will analyse entire folders)
 - **folders**: an array of folder names to get images from

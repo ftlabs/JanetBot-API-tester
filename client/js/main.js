@@ -117,6 +117,4 @@ function drawSquares(faces, context) {
 
 
 
-document.addEventListener('DOMContentLoaded', function() {
-	init();
-});
+document.addEventListener('DOMContentLoaded', init);

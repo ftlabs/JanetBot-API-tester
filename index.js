@@ -41,7 +41,6 @@ app.get('/janetbot', (req,res) => {
 		return res.json();
 	})
 	.then(data => {
-		console.log(data);
 		return res.json(data);
 	})
 	.catch(err => {
