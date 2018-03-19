@@ -8,8 +8,8 @@ const fs = require('fs');
 const selectedSubset = {
 	type: 'sample',
 	folders: ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09'],
-	quantity: 10,
-	from: 0,
+	quantity: 5,
+	from: 10,
 	sampleOrder: 'random'
 } 
 
@@ -20,8 +20,34 @@ app.use(express.static(path.resolve(__dirname + "/client")));
 
 const localURL = process.env.LOCAL_URL;
 
+//TODO: before hosting, add s3o
+
 app.get('/', (req,res) => {
-	res.send(200);
+	res.sendStatus(200);
+});
+
+app.get('/janetbot', (req,res) => {
+	const credentials = `${process.env.AUTH_USER}:${process.env.AUTH_TOKEN}`;
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': 'Basic ' + new Buffer(credentials).toString('base64')
+		}
+	};
+
+	fetch(`${process.env.JANETBOT_URL}${req.query.v}`, options)
+	.then(res => {
+		return res.json();
+	})
+	.then(data => {
+		console.log(data);
+		return res.json(data);
+	})
+	.catch(err => {
+		console.log(err);
+		res.sendStatus(403);
+	});
 });
 
 app.get('/test', (req, res) => {
@@ -36,7 +62,7 @@ app.get('/test', (req, res) => {
 	});
 
 	res.send('Analysis is running');
-})
+});
 
 app.listen(process.env.PORT || 2018);
 
@@ -112,7 +138,7 @@ async function analyseDataSet(subset = null) {
 		savedData.conclusion = await checkClassification(savedData);
 		analysisResults.push(savedData);
 	}
-
+	//TODO: when hosted, run cron to delete results
 	saveResults(analysisResults);
 }
 
@@ -194,7 +220,7 @@ async function formatMetaData(data) {
 
 async function callAPI(imgPath) {
 	const postData = `image=${localURL}/${imgPath}`;
-	console.log(postData);
+	//TODO: if/when hosting, handle local vs hosted
 	const options = {
 		headers: {
 			'Accept': 'application/json',

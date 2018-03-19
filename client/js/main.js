@@ -2,8 +2,44 @@ var data;
 
 function init() {
 	var jsonInput = document.getElementById('jsonResponse');
+	var buttons = document.querySelectorAll('.fetch-results');
 
 	jsonInput.addEventListener('submit', parseInput);
+	Array.from(buttons).forEach(function(button) {
+		button.addEventListener('click', getJBData);
+	});
+}
+
+function getJBData(e) {
+	var edition = e.currentTarget.id.split('-')[1];
+	var url = new URL(window.location.href+'janetbot?v='+edition);
+
+	fetch(url)
+		.then(function(res){
+			return res.json();
+		})
+		.then(function(data){
+			data = data;
+			var origin = document.querySelector('.image-container');
+
+			for(var i = 0; i < data.content.length; ++i) {
+				var duplicate = origin.cloneNode(true);
+				duplicate.setAttribute('id', i);
+
+				var objDetails = duplicate.querySelector('.object-data');
+				var results = JSON.parse(data.content[i].rawResults);
+				objDetails.textContent = JSON.stringify(results, null, '\t');
+
+				var canvas = duplicate.querySelector('.output');
+				canvas.setAttribute('id', 'output'+i);
+				getImage(results, canvas);
+
+				document.body.appendChild(duplicate);
+			}
+		})
+		.catch(function(err){
+			console.log(err);
+		});
 }
 
 function parseInput(e) {
@@ -50,10 +86,7 @@ function parseInput(e) {
 			});
 			reader.readAsText(files[0]);
 		}
-
 	}
-
-
 }
 
 function getImage(imgData, canvas) {
