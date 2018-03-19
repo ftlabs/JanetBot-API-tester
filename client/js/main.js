@@ -8,11 +8,80 @@ function init() {
 
 function parseInput(e) {
 	e.preventDefault();
-	var value = e.currentTarget.querySelector('#json-input').value;
 
-	if(value.length > 0) {
+	var classifierText = e.currentTarget.querySelector('#classifier-input').value;
+	var jsonText       = e.currentTarget.querySelector('#json-input'      ).value;
+
+	if(classifierText.length > 0) {
+		console.log(`DEBUG: parsing classifierText`);
+		// expecting classifierText to be:
+		// http://classifier_url
+		// bodyparam=VALUE
+		// bodyparam=VALUE
+		// bodyparam=VALUE
+		// bodyparam=VALUE
+
+		let classifierUrl = null;
+		let bodyParamsStrings = [];
+
+		let lines = classifierText.split(/\n/);
+
+		let mUrl = lines[0].match(/^(http:.*)/);
+		if( mUrl ) {
+			classifierUrl = mUrl[1];
+			console.log(`DEBUG: parsing classifierUrl=${classifierUrl}`);
+		} else {
+			alert(`no classifier url specified in 1st line`);
+		}
+
+		lines.slice(1).forEach( line => {
+			let mBodyParam = line.match(/^([^=]+)=(.+)$/);
+			if (mBodyParam) {
+				let paramString = `${mBodyParam[1]}=${encodeURIComponent(mBodyParam[2])}`;
+				bodyParamsStrings.push( paramString );
+				console.log(`DEBUG: parsing paramString=${paramString}`);
+			}
+		})
+
+		if(classifierUrl !== null){
+			let bodyText = bodyParamsStrings.join('&');
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", classifierUrl, true);
+			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.onreadystatechange = function() {
+				console.log(`classifier response received.`)
+				if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+					try {
+						let jsonText = xhr.response;
+						console.log(`classifier response = ${jsonText}`)
+						let tempResult = JSON.parse(jsonText);
+
+						// display the JSON response from the classifier
+						var jsonDataObj = document.querySelector('.json-data');
+						jsonDataObj.textContent = jsonText;
+
+						data = {results: [{apiResults: tempResult}]};
+						var origin = document.querySelector('.image-container');
+
+						if(tempResult.faces.length > 0) {
+							getImage(tempResult, origin.querySelector('.output'));
+						} else {
+							alert('No faces');
+						}
+					} catch(e) {
+						alert('Invalid JSON');
+						return;
+					}
+				}
+			}
+			console.log(`DEBUG: POST ${classifierUrl}
+${bodyText}`);
+			xhr.send(bodyText);
+		}
+
+	} else if(jsonText.length > 0) {
 		try {
-			tempResult = JSON.parse(value);
+			let tempResult = JSON.parse(jsonText);
 			data = {results: [{apiResults: tempResult}]};
 			var origin = document.querySelector('.image-container');
 
