@@ -56,7 +56,7 @@ app.post('/api', (req, res) => {
 	const params = formatParams(req.body);
 
 	callAPI(params)
-	.then(data => {=
+	.then(data => {
 		return res.json({results: [data]});
 	})
 	.catch(err => {
