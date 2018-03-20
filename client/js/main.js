@@ -144,7 +144,7 @@ function getImage(imgData, canvas) {
 	var yShrunkBy = 1.0;
 
 	// added to re-scale the boxes to the correct size if the classifyImage service shrank the image before processing
-	if (imgData.hasOwnProperty('shrunk')) {
+	if (imgData.hasOwnProperty('shrunk') && imgData.shrunk.hasOwnProperty('to') ) {
 		xShrunkBy = imgData.shrunk.to.width  / imgData.shrunk.from.width ;
 		yShrunkBy = imgData.shrunk.to.height / imgData.shrunk.from.height;
 	}
