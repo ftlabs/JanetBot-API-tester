@@ -51,6 +51,7 @@ function parseInput(e) {
 	if(classifierText.length > 0) {
 		console.log(`DEBUG: parsing classifierText`);
 		// expecting classifierText to be:
+		//to override url: api=VALUE note: do not add endpoint
 		// bodyparam=VALUE
 		// bodyparam=VALUE
 		// bodyparam=VALUE
@@ -87,11 +88,13 @@ function parseInput(e) {
 			})
 			.then(function(data) {
 				data = data;
+				var imgResults = JSON.parse(data.results[0].apiResults);
+				
 				var jsonDataObj = document.querySelector('.json-data');
-				jsonDataObj.textContent = data.apiResults;
+				jsonDataObj.textContent = JSON.stringify(imgResults, null, '\t');
 
 				var origin = document.querySelector('.image-container');
-				getImage(JSON.parse(data.results[0].apiResults), origin.querySelector('.output'));
+				getImage(imgResults, origin.querySelector('.output'));
 			})
 			.catch(function(err) {
 				console.log(err);

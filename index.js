@@ -234,6 +234,8 @@ async function formatMetaData(data) {
 
 async function callAPI(params) {
 	//TODO: if/when hosting, handle local vs hosted
+	const rootUrl = params.api?params.api:process.env.JANETBOT_API;
+
 	const options = {
 		headers: {
 			'Accept': 'application/json',
@@ -241,10 +243,10 @@ async function callAPI(params) {
 	  	},
 		method: 'POST',
 		mode: 'cors',
-		body: params
+		body: params.string
 	};
 
-	return fetch(`${process.env.JANETBOT_API}/classifyImage`, options)
+	return fetch(`${rootUrl}/classifyImage`, options)
 			.then(res => {
 				if(res.ok) {
 					return res.json();
@@ -265,11 +267,20 @@ async function callAPI(params) {
 }
 
 function formatParams(obj) {
+	const format = {};
 	let params = [];
+
 	for(let prop in obj) {
-		params.push(`${prop}=${encodeURIComponent(obj[prop])}`);
+		if(prop === 'api') {
+			format.api = obj[prop];
+		} else {
+			params.push(`${prop}=${encodeURIComponent(obj[prop])}`);	
+		}
 	}
-	return params.join('&');
+	
+	format.string = params.join('&');
+
+	return format;
 }
 
 function sortByPath(a,b){
