@@ -46,78 +46,59 @@ function parseInput(e) {
 	e.preventDefault();
 
 	var classifierText = e.currentTarget.querySelector('#classifier-input').value;
-	var jsonText       = e.currentTarget.querySelector('#json-input'      ).value;
+	var jsonText = e.currentTarget.querySelector('#json-input').value;
 
 	if(classifierText.length > 0) {
 		console.log(`DEBUG: parsing classifierText`);
 		// expecting classifierText to be:
-		// http://classifier_url
 		// bodyparam=VALUE
 		// bodyparam=VALUE
 		// bodyparam=VALUE
 		// bodyparam=VALUE
 
-		let classifierUrl = null;
-		let bodyParamsStrings = [];
+		var bodyParamsStrings = [];
 
-		let lines = classifierText.split(/\n/);
+		var lines = classifierText.split(/\n/);
 
-		let mUrl = lines[0].match(/^(https?:.*)/);
-		if( mUrl ) {
-			classifierUrl = mUrl[1];
-			console.log(`DEBUG: parsing classifierUrl=${classifierUrl}`);
-		} else {
-			alert(`no classifier url specified in 1st line`);
-		}
-
-		lines.slice(1).forEach( line => {
-			let mBodyParam = line.match(/^([^=]+)=(.+)$/);
+		Array.from(lines).forEach( function(line) {
+			var mBodyParam = line.match(/^([^=]+)=(.+)$/);
 			if (mBodyParam) {
-				let paramString = `${mBodyParam[1]}=${encodeURIComponent(mBodyParam[2])}`;
+				var paramString = mBodyParam[1] + '=' + encodeURIComponent(mBodyParam[2]);
 				bodyParamsStrings.push( paramString );
-				console.log(`DEBUG: parsing paramString=${paramString}`);
+				console.log('DEBUG: parsing paramString=', paramString);
 			}
 		})
 
-		if(classifierUrl !== null){
-			let bodyText = bodyParamsStrings.join('&');
-			let xhr = new XMLHttpRequest();
-			xhr.open("POST", classifierUrl, true);
-			xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xhr.onreadystatechange = function() {
-				console.log(`classifier response received.`)
-				if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
-					try {
-						let jsonText = xhr.response;
-						console.log(`classifier response = ${jsonText}`)
-						let tempResult = JSON.parse(jsonText);
+		var bodyText = bodyParamsStrings.join('&');
 
-						// display the JSON response from the classifier
-						var jsonDataObj = document.querySelector('.json-data');
-						jsonDataObj.textContent = jsonText;
-
-						data = {results: [{apiResults: tempResult}]};
-						var origin = document.querySelector('.image-container');
-
-						if(tempResult.faces.length > 0) {
-							getImage(tempResult, origin.querySelector('.output'));
-						} else {
-							alert('No faces');
-						}
-					} catch(e) {
-						alert('Invalid JSON');
-						return;
-					}
-				}
-			}
-			console.log(`DEBUG: POST ${classifierUrl}
-${bodyText}`);
-			xhr.send(bodyText);
+		var serverURL = new URL(window.location.href+'api');
+		var options = {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+		    	'Content-Type': 'application/x-www-form-urlencoded'
+		  	},
+		  	body: bodyText
 		}
 
+		fetch(serverURL, options)
+			.then(function(res){
+				return res.json();
+			})
+			.then(function(data) {
+				data = data;
+				var jsonDataObj = document.querySelector('.json-data');
+				jsonDataObj.textContent = data.apiResults;
+
+				var origin = document.querySelector('.image-container');
+				getImage(JSON.parse(data.results[0].apiResults), origin.querySelector('.output'));
+			})
+			.catch(function(err) {
+				console.log(err);
+			});
 	} else if(jsonText.length > 0) {
 		try {
-			let tempResult = JSON.parse(jsonText);
+			var tempResult = JSON.parse(jsonText);
 			data = {results: [{apiResults: tempResult}]};
 			var origin = document.querySelector('.image-container');
 
@@ -159,9 +140,8 @@ ${bodyText}`);
 }
 
 function getImage(imgData, canvas) {
-
-	let xShrunkBy = 1.0;
-	let yShrunkBy = 1.0;
+	var xShrunkBy = 1.0;
+	var yShrunkBy = 1.0;
 
 	// added to re-scale the boxes to the correct size if the classifyImage service shrank the image before processing
 	if (imgData.hasOwnProperty('shrunk')) {
@@ -187,7 +167,7 @@ function getImage(imgData, canvas) {
 
 function drawSquares(faces, context, xShrunkBy=1.0, yShrunkBy=1.0) {
 	for(var i = 0; i < faces.length; ++i) {
-		let face = faces[i];
+		var face = faces[i];
 		var pos = face.coordinates;
 		context.setLineDash([]);
 		context.strokeStyle = (face.gender === "man")?"blue":"red";

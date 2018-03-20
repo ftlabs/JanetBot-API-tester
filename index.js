@@ -2,6 +2,7 @@ if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const app = express();
+const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fs = require('fs');
 
@@ -17,6 +18,8 @@ let metadata;
 
 app.use(express.static(path.resolve(__dirname + "/data")));
 app.use(express.static(path.resolve(__dirname + "/client")));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 const localURL = process.env.LOCAL_URL;
 
@@ -46,6 +49,18 @@ app.get('/janetbot', (req,res) => {
 	.catch(err => {
 		console.log(err);
 		res.sendStatus(403);
+	});
+});
+
+app.post('/api', (req, res) => {
+	const params = formatParams(req.body);
+
+	callAPI(params)
+	.then(data => {=
+		return res.json({results: [data]});
+	})
+	.catch(err => {
+		res.sendStatus(500);
 	});
 });
 
@@ -128,7 +143,7 @@ function indexIsInRange(index, folderNum) {
 async function analyseDataSet(subset = null) {
 	const analysisResults = [];
 	for(data in subset) {
-		const result = await callAPI(subset[data].full_path);
+		const result = await callAPI(`image=${localURL}/${subset[data].full_path}`);
 		const formattedResult = (result.apiResults === undefined)?{apiResults: undefined}:{apiResults: JSON.parse(result.apiResults)};
 		const savedData = await formatMetaData(subset[data]);
 
@@ -217,8 +232,7 @@ async function formatMetaData(data) {
 	return obj;
 }
 
-async function callAPI(imgPath) {
-	const postData = `image=${localURL}/${imgPath}`;
+async function callAPI(params) {
 	//TODO: if/when hosting, handle local vs hosted
 	const options = {
 		headers: {
@@ -227,7 +241,7 @@ async function callAPI(imgPath) {
 	  	},
 		method: 'POST',
 		mode: 'cors',
-		body: postData
+		body: params
 	};
 
 	return fetch(`${process.env.JANETBOT_API}/classifyImage`, options)
@@ -248,6 +262,14 @@ async function callAPI(imgPath) {
 				return {apiResults: JSON.stringify(data)};
 			})
 			.catch(err => { console.log(err) });
+}
+
+function formatParams(obj) {
+	let params = [];
+	for(let prop in obj) {
+		params.push(`${prop}=${encodeURIComponent(obj[prop])}`);
+	}
+	return params.join('&');
 }
 
 function sortByPath(a,b){
