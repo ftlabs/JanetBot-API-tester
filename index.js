@@ -1,6 +1,7 @@
 if (process.env.NODE_ENV !== 'production') require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const s3o = require('@financial-times/s3o-middleware');
 const app = express();
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
@@ -12,22 +13,19 @@ const selectedSubset = {
 	quantity: 5,
 	from: 10,
 	sampleOrder: 'random'
-} 
+};
+//TODO later: move params to client for local dev
 
 let metadata;
 
+// app.use(s3o);
 app.use(express.static(path.resolve(__dirname + "/data")));
-app.use(express.static(path.resolve(__dirname + "/client")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const localURL = process.env.LOCAL_URL;
 
 //TODO: before hosting, add s3o
-
-app.get('/', (req,res) => {
-	res.sendStatus(200);
-});
 
 app.get('/janetbot', (req,res) => {
 	const credentials = `${process.env.AUTH_USER}:${process.env.AUTH_TOKEN}`;
@@ -65,17 +63,28 @@ app.post('/api', (req, res) => {
 });
 
 app.get('/test', (req, res) => {
-	fs.readFile(path.resolve(path.join(__dirname + "/data/data.json")), 'utf8', (err, data) => {
-		if(err) {
-			console.log('ERROR opening metadata', err);
-			return;
-		}
+	if(process.env.NODE_ENV === 'production') {
+		res.send('This feature is only available locally');
+	} else {
+		fs.readFile(path.resolve(path.join(__dirname + "/data/data.json")), 'utf8', (err, data) => {
+			if(err) {
+				console.log('ERROR opening metadata', err);
+				return;
+			}
 
-		metadata = JSON.parse(data).sort(sortByPath);
-		analyseDataSet(getSubset(selectedSubset));
-	});
+			metadata = JSON.parse(data).sort(sortByPath);
+			analyseDataSet(getSubset(selectedSubset));
+		});
 
-	res.send('Analysis is running');
+		res.send('Analysis is running');
+	}
+	
+});
+
+app.use(s3o);
+app.use(express.static(path.resolve(__dirname + "/client")));
+app.get('/',  (req,res) => {
+	res.sendStatus(200);
 });
 
 app.listen(process.env.PORT || 2018);
@@ -152,7 +161,7 @@ async function analyseDataSet(subset = null) {
 		savedData.conclusion = await checkClassification(savedData);
 		analysisResults.push(savedData);
 	}
-	//TODO: when hosted, run cron to delete results // or download JSON on client
+
 	saveResults(analysisResults);
 }
 
@@ -233,7 +242,6 @@ async function formatMetaData(data) {
 }
 
 async function callAPI(params) {
-	//TODO: if/when hosting, handle local vs hosted in error message etc.
 	const rootUrl = params.api?params.api:process.env.JANETBOT_API;
 
 	const options = {
