@@ -25,8 +25,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 const localURL = process.env.LOCAL_URL;
 
-//TODO: before hosting, add s3o
-
 app.get('/janetbot', (req,res) => {
 	const credentials = `${process.env.AUTH_USER}:${process.env.AUTH_TOKEN}`;
 	const options = {
