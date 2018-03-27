@@ -36,6 +36,8 @@ function getJBData(e) {
 
 				document.body.appendChild(duplicate);
 			}
+			
+			hideParams();
 		})
 		.catch(function(err){
 			console.log(err);
@@ -95,6 +97,7 @@ function parseInput(e) {
 
 				var origin = document.querySelector('.image-container');
 				getImage(imgResults, origin.querySelector('.output'));
+				hideParams();
 			})
 			.catch(function(err) {
 				console.log(err);
@@ -107,6 +110,7 @@ function parseInput(e) {
 
 			if(tempResult.faces.length > 0) {
 				getImage(tempResult, origin.querySelector('.output'));
+				hideParams();
 			} else {
 				alert('No faces');
 			}
@@ -136,6 +140,8 @@ function parseInput(e) {
 
 					document.body.appendChild(duplicate);
 				}
+
+				hideParams();
 			});
 			reader.readAsText(files[0]);
 		}
@@ -188,6 +194,11 @@ function drawSquares(faces, context, xShrunkBy=1.0, yShrunkBy=1.0) {
 			);
 		}
 	}
+}
+
+function hideParams() {
+	var params = document.getElementById('parameters');
+	params.classList.add('hidden');
 }
 
 
