@@ -6,17 +6,21 @@
 	<body>
 		<button class="fetch-results" id="jb-uk">Homepage UK</button>
 		<button class="fetch-results" id="jb-international">Homepage International</button>
-		<form id="jsonResponse"> 
+		<form id="jsonResponse">
 			<input type="file" id="files" name="files[]" />
-			<br>
-			OR <br>
+			<br>OR classifier response JSON<br>
 			<textarea id="json-input"></textarea>
+			<br>OR classifier POST params<br>
+			<textarea id="classifier-input"></textarea>
 			<button type="submit">GO!</button>
 		</form>
 		<div class="image-container">
 			<canvas class="output" height="0" width="0"></canvas>
 			<pre class="object-data"></pre>
-		<div>
+		</div>
+		<div class="json-container">
+			<pre class="json-data"></pre>
+		</div>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
 </html>
