@@ -18,7 +18,7 @@ const selectedSubset = {
 
 let metadata;
 
-// app.use(s3o);
+
 app.use(express.static(path.resolve(__dirname + "/data")));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
