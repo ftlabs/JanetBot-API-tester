@@ -152,7 +152,7 @@ async function analyseDataSet(subset = null) {
 		savedData.conclusion = await checkClassification(savedData);
 		analysisResults.push(savedData);
 	}
-	//TODO: when hosted, run cron to delete results
+	//TODO: when hosted, run cron to delete results // or download JSON on client
 	saveResults(analysisResults);
 }
 
@@ -233,7 +233,7 @@ async function formatMetaData(data) {
 }
 
 async function callAPI(params) {
-	//TODO: if/when hosting, handle local vs hosted
+	//TODO: if/when hosting, handle local vs hosted in error message etc.
 	const rootUrl = params.api?params.api:process.env.JANETBOT_API;
 
 	const options = {

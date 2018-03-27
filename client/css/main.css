@@ -1,0 +1,49 @@
+body {
+	background: #fff1e5;
+	font-family: MetricWeb,sans-serif;
+}
+
+h1 {
+	font-family: FinancierDisplayWeb,serif;
+	text-align: center;	
+}
+
+#jsonResponse button[type="submit"] {
+	margin: 0 10px;
+	width: 100%;
+	max-width: 380px;
+}
+
+.button-label {
+	margin: 0 0 10px;
+}
+
+.image-container {
+	border-bottom: 1px solid #999189;
+	margin-bottom: 40px;
+	padding-bottom: 40px;	
+}
+
+.output {
+	max-width: 100%;
+}
+
+.object-data {
+	max-width: 100%;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+	background: #CCC1B7;
+	padding: 10px;
+	border-radius: 5px;
+	margin: 0;
+}
+
+.object-data:empty {
+	display: none;
+}
+
+@media screen and (max-width: 490px) {
+	#jsonResponse button[type="submit"] {
+		margin: 0;
+	}	
+}
