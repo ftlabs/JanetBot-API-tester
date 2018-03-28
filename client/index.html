@@ -24,6 +24,11 @@
 				</div>
 				<div class="o-forms">
 					<label for="classifier-input" class="o-forms__label">Call the API with overriding parameters</label>
+					<div class="o-forms__additional-info">
+						api=&lt;Override API url, without the endpoint&gt;<br>
+						image=&lt;IMAGE URL&gt;<br>
+						bodyparam=VALUE
+					</div>
 					<textarea id="classifier-input" class="o-forms__textarea"></textarea><br>
 				</div>
 				<button type="submit" class="o-buttons o-buttons--primary o-buttons--big">GO!</button>
@@ -32,9 +37,6 @@
 		<div class="image-container">
 			<canvas class="output" height="0" width="0"></canvas>
 			<pre class="object-data"></pre>
-		</div>
-		<div class="json-container">
-			<pre class="json-data"></pre>
 		</div>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>

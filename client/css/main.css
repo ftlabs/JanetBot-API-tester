@@ -46,6 +46,11 @@ h1 {
 	display: none;
 }
 
+.o-forms__textarea {
+	resize: both;
+	max-width: none;
+}
+
 @media screen and (max-width: 490px) {
 	#jsonResponse button[type="submit"] {
 		margin: 0;
