@@ -35,17 +35,22 @@ app.get('/janetbot', (req,res) => {
 		}
 	};
 
-	fetch(`${process.env.JANETBOT_URL}${req.query.v}`, options)
-	.then(res => {
-		return res.json();
-	})
-	.then(data => {
-		return res.json(data);
-	})
-	.catch(err => {
-		console.log(err);
-		res.sendStatus(403);
-	});
+	if(process.env.JANETBOT_URL) {
+		fetch(`${process.env.JANETBOT_URL}${req.query.v}`, options)
+			.then(res => {
+				return res.json();
+			})
+			.then(data => {
+				return res.json(data);
+			})
+			.catch(err => {
+				console.log(err);
+				res.sendStatus(403);
+			});
+	} else {
+		console.log('NO API URL SPECIFIED');
+		res.sendStatus(404);
+	}
 });
 
 app.post('/api', (req, res) => {

@@ -18,7 +18,11 @@ function getJBData(e) {
 
 	fetch(url)
 		.then(function(res){
-			return res.json();
+			if(res.status === 200) {
+				return res.json();	
+			} else {
+				throw Error(res.status);
+			}
 		})
 		.then(function(data){
 			data = data;
@@ -42,7 +46,11 @@ function getJBData(e) {
 			hideParams();
 		})
 		.catch(function(err){
-			console.log(err);
+			if(err.toString().includes('404')) {
+				alert('Service not found, check service URL');
+			} else {
+				alert('Access forbidden, check your service tokens');
+			}
 		});
 }
 
