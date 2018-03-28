@@ -244,8 +244,6 @@ function loadCachedParams() {
 		var classifierInput = document.getElementById('classifier-input');
 		classifierInput.value = classifierValue;
 	}
-
-	console.log(jsonValue, classifierValue);
 }
 
 
