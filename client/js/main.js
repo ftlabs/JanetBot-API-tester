@@ -8,6 +8,8 @@ function init() {
 	Array.from(buttons).forEach(function(button) {
 		button.addEventListener('click', getJBData);
 	});
+
+	loadCachedParams();
 }
 
 function getJBData(e) {
@@ -16,7 +18,11 @@ function getJBData(e) {
 
 	fetch(url)
 		.then(function(res){
-			return res.json();
+			if(res.status === 200) {
+				return res.json();	
+			} else {
+				throw Error(res.status);
+			}
 		})
 		.then(function(data){
 			data = data;
@@ -36,9 +42,15 @@ function getJBData(e) {
 
 				document.body.appendChild(duplicate);
 			}
+			
+			hideParams();
 		})
 		.catch(function(err){
-			console.log(err);
+			if(err.toString().includes('404')) {
+				alert('Service not found, check service URL');
+			} else {
+				alert('Access forbidden, check your service tokens');
+			}
 		});
 }
 
@@ -50,12 +62,7 @@ function parseInput(e) {
 
 	if(classifierText.length > 0) {
 		console.log(`DEBUG: parsing classifierText`);
-		// expecting classifierText to be:
-		//to override url: api=VALUE note: do not add endpoint
-		// bodyparam=VALUE
-		// bodyparam=VALUE
-		// bodyparam=VALUE
-		// bodyparam=VALUE
+		deleteCachedParams('json');
 
 		var bodyParamsStrings = [];
 
@@ -90,26 +97,28 @@ function parseInput(e) {
 				data = data;
 				var imgResults = JSON.parse(data.results[0].apiResults);
 				
-				var jsonDataObj = document.querySelector('.json-data');
+				var jsonDataObj = document.querySelector('.object-data');
 				jsonDataObj.textContent = JSON.stringify(imgResults, null, '\t');
 
 				var origin = document.querySelector('.image-container');
 				getImage(imgResults, origin.querySelector('.output'));
+				hideParams();
 			})
 			.catch(function(err) {
 				console.log(err);
 			});
 	} else if(jsonText.length > 0) {
+		deleteCachedParams('classifier');
 		try {
 			var tempResult = JSON.parse(jsonText);
 			data = {results: [{apiResults: tempResult}]};
 			var origin = document.querySelector('.image-container');
+			var jsonDataObj = document.querySelector('.object-data');
+			jsonDataObj.textContent = jsonText;
 
-			if(tempResult.faces.length > 0) {
-				getImage(tempResult, origin.querySelector('.output'));
-			} else {
-				alert('No faces');
-			}
+			getImage(tempResult, origin.querySelector('.output'));
+			hideParams();
+
 		} catch(e) {
 			alert('Invalid JSON');
 			return;
@@ -136,6 +145,8 @@ function parseInput(e) {
 
 					document.body.appendChild(duplicate);
 				}
+
+				hideParams();
 			});
 			reader.readAsText(files[0]);
 		}
@@ -187,6 +198,59 @@ function drawSquares(faces, context, xShrunkBy=1.0, yShrunkBy=1.0) {
 				pos.width   /xShrunkBy, pos.height  /yShrunkBy
 			);
 		}
+	}
+}
+
+function hideParams() {
+	var jsonInput = document.getElementById('json-input');
+	var classifierInput = document.getElementById('classifier-input');
+
+	if(jsonInput.value !== '' || classifierInput.value !== '') {
+		cacheParams(jsonInput.value, classifierInput.value);
+	}
+
+	var params = document.getElementById('parameters');
+	params.classList.add('hidden');
+}
+
+function cacheParams(jsonValue, classifierValue) {
+	if(jsonValue !== '') {
+		window.localStorage.setItem('JB_tester_json', JSON.stringify(jsonValue));
+	}
+
+	if(classifierValue !== '') {
+		window.localStorage.setItem('JB_tester_classifier', JSON.stringify(classifierValue));
+	}
+}
+
+function deleteCachedParams(param) {
+	if(param === 'json') {
+		var jsonInput = document.getElementById('json-input');
+		jsonInput.value = '';
+		window.localStorage.removeItem('JB_tester_json');
+	} else if (param === 'classifier') {
+		var classifierInput = document.getElementById('classifier-input');
+		classifierInput.value = '';
+
+		window.localStorage.removeItem('JB_tester_classifier');
+	}
+}
+
+function loadCachedParams() {
+	var jsonValue = window.localStorage.getItem('JB_tester_json');
+	var classifierValue = window.localStorage.getItem('JB_tester_classifier');
+
+	if(jsonValue !== null) {
+		jsonValue = JSON.parse(jsonValue);
+
+		var jsonInput = document.getElementById('json-input');
+		jsonInput.value = jsonValue;
+	}
+
+	if(classifierValue !== null) {
+		classifierValue = JSON.parse(classifierValue);
+		var classifierInput = document.getElementById('classifier-input');
+		classifierInput.value = classifierValue;
 	}
 }
 

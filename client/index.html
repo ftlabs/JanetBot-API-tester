@@ -1,26 +1,44 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Displaying results</title>
+		<title>JanetBot API Tester</title>
+		<link rel="stylesheet" href="https://build.origami.ft.com/v2/bundles/css?modules=o-fonts@^3.0.4,o-buttons@^5.10.3,o-forms@^5.2.4" />
+		<link rel="stylesheet" type="text/css" href="css/main.css">
 	</head>
 	<body>
-		<button class="fetch-results" id="jb-uk">Homepage UK</button>
-		<button class="fetch-results" id="jb-international">Homepage International</button>
-		<form id="jsonResponse">
-			<input type="file" id="files" name="files[]" />
-			<br>OR classifier response JSON<br>
-			<textarea id="json-input"></textarea>
-			<br>OR classifier POST params<br>
-			<textarea id="classifier-input"></textarea>
-			<button type="submit">GO!</button>
-		</form>
+		<h1>JanetBot API tester</h1>
+		<section id="parameters">
+			<div id="janetbotData" class="o-forms">
+				<label class="o-forms__label button-label">See results for the current homepage</label>
+				<button class="fetch-results o-buttons o-buttons--primary" id="jb-uk">Homepage UK</button>
+				<button class="fetch-results o-buttons o-buttons--primary" id="jb-international">Homepage International</button>
+			</div>
+			<form id="jsonResponse">
+				<div class="o-forms">
+					<label for="files" class="o-forms__label">Upload a JSON file from the tester set</label>
+					<input type="file" id="files" name="files[]" class="o-forms__text" />
+				</div>
+				<div class="o-forms">
+					<label for="json-input" class="o-forms__label">Paste 1 JSON object response from the API</label>
+					<textarea id="json-input" class="o-forms__textarea"></textarea>
+				</div>
+				<div class="o-forms">
+					<label for="classifier-input" class="o-forms__label">Call the API with overriding parameters</label>
+					<div class="o-forms__additional-info">
+						api=&lt;Override API url, without the endpoint&gt;<br>
+						image=&lt;IMAGE URL&gt;<br>
+						bodyparam=VALUE
+					</div>
+					<textarea id="classifier-input" class="o-forms__textarea"></textarea><br>
+				</div>
+				<button type="submit" class="o-buttons o-buttons--primary o-buttons--big">GO!</button>
+			</form>
+		</section>
 		<div class="image-container">
 			<canvas class="output" height="0" width="0"></canvas>
 			<pre class="object-data"></pre>
 		</div>
-		<div class="json-container">
-			<pre class="json-data"></pre>
-		</div>
 		<script type="text/javascript" src="js/main.js"></script>
 	</body>
+	<script src="https://build.origami.ft.com/v2/bundles/js?modules=o-fonts@^3.0.4,o-buttons@^5.10.3,o-forms@^5.2.4"></script>
 </html>
